@@ -12,7 +12,8 @@ export enum KEY_CODE {
   D = 68,
   F = 70,
   SPACE = 32,
-  ENTER = 13
+  ENTER = 13,
+  R = 82
 }
 
 @Component({
@@ -29,7 +30,7 @@ export class AppComponent {
   curent_script= "";
   current_emotion = "";
   downloadJsonHref:any;
-  scripts_font_size = 5;
+  scripts_font_size = 3;
   font = "";
   emoji = "";
   timer:any;
@@ -73,6 +74,7 @@ export class AppComponent {
   }
 
   format_emotion_labels(emo, trans){
+    var trans:any = this.santize_trans(trans);
     if(trans.startsWith("jsdfshfsdfsdfg37846sdfsd8234jhsdfsdffjsfg783243874jhsgf3782234682734245234324234234234234sdfsf")){
        return null; 
       }
@@ -118,6 +120,19 @@ export class AppComponent {
       data => this.extractData(data),
       err => this.handleError(err)
     );
+  }
+
+  santize_trans(value){
+    var main = value.split(" ");
+    var final = "";
+    for(var i =0; i < main.length; i++){
+       if(!main[i].trim().startsWith("@") && !main[i].trim().startsWith("&") && !main[i].trim().startsWith("*") && !main[i].trim().startsWith("http") ){
+          final = final + main[i] + " ";
+       }
+    }
+    final = final.toLowerCase();
+    final =  final.charAt(0).toUpperCase() + final.slice(1);
+    return final;
   }
   private extractData(res: Response) {
 
@@ -259,19 +274,23 @@ export class AppComponent {
    
   start(){
       this.log = new Loger();
+      var today = new Date().toUTCString();
+      this.log.start_time = today;
       // this.log.start_time = this.hr + ":" + this.min + ":" + this.sec;
-      // this.log.trans = this.curent_script;
-      // this.log.emotion = this.current_emotion;
-      // console.log(this.log)
+      this.log.trans = this.curent_script;
+      this.log.emotion = this.current_emotion;
+      console.log(this.log)
       this.isReacording_started = true;
   }
   finish(){
-    // if(this.isReacording_started){
-    //   this.log.end_time = this.hr + ":" + this.min + ":" + this.sec;
-    //   console.log(this.log)
-    //   this.isReacording_started = false;
-    //   this.loger.push(this.log);
-    // }
+    if(this.isReacording_started){
+      var today = new Date().toUTCString();
+      this.log.end_time = today;
+      // this.log.end_time = this.hr + ":" + this.min + ":" + this.sec;
+      console.log(this.log)
+      this.isReacording_started = false;
+      this.loger.push(this.log);
+    }
     
   }
 
@@ -350,7 +369,13 @@ export class AppComponent {
           this.is_shown = false;
         }
      }
+     if(event.keyCode == KEY_CODE.R){
+        this.reset();
+     }
 
+  }
+  reset(){
+     this.loger = [];
   }
   onclip(value){
     console.log(value)
@@ -362,7 +387,9 @@ export class AppComponent {
 export class Loger{
   public clip_name:string;
   public emotion:string;
-  public trans:string
+  public trans:string;
+  start_time:string;
+  end_time:string;
   constructor(){
 
   }
