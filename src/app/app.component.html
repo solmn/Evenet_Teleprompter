@@ -1,4 +1,6 @@
 <div class="main">
+  <h2  style="color: green">{{keybord}}</h2>
+  <!-- <h2 *ngIf="is_con" style="color: green">SERVER: {{is_server_connected}}</h2> -->
   <div class="prompter text-center">
 
        <img [src]="emoji" width="100px" height="100px" />
@@ -16,19 +18,23 @@
                <form>
                 <div class="form-group">
                  
-                  <input [(ngModel)]="clip" name ="clip" style="background-color: white" type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Clip name" autofocus>
-                  <small *ngIf="!clip" style="color: red;" id="emailHelp" class="form-text text-muted">Please Enter clip name</small>
+                  <input [(ngModel)]="clip" name ="clip" style="background-color: white" type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="192.168.1.27:8000" autofocus>
+                  <small *ngIf="!clip" style="color: red;" id="emailHelp" class="form-text text-muted">Please server address</small>
                 </div>
               </form>
           </div>
   	   			
   	   		</div>
   	   		<div style="margin-left: 54%;">
-            <p style="font-weight: bold; color: red;">Press [T] to start the timer</p>
+            
+  	   			<p style="font-weight: bold;">Press [S] to start recording</p>
+            <p style="font-weight: bold;">Press [D] to discard the current recording</p>
+  	   		  <p style="font-weight: bold;">[Right Arrow] to save current recording and go to the next</p>
+            <p style="font-weight: bold;">[SPACE] to enter server address</p>
+            <p style="font-weight: bold;">[ENTER] to save server address</p>
+            <p >Press [T] to start the timer</p>
             <p>Press [Y] to stop the timer</p>
-  	   			<p>Press [S] to start recording</p>
-  	   		    <p>Press [D] or [Right Arrow] to finish recording</p>
-               <p>Press [R] to reset the logger</p>
+              <!--  <p>Press [R] to reset the logger</p> -->
   	   		</div>
           
   	   		

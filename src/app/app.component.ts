@@ -1,6 +1,14 @@
 import { Component ,HostListener,ChangeDetectorRef} from '@angular/core';
 import { Http, Response } from '@angular/http';
 import {DomSanitizer, SafeResourceUrl, SafeUrl} from '@angular/platform-browser';
+import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import * as io from 'socket.io-client';
+import { Observable } from 'rxjs/Observable';
+import * as Rx from 'rxjs/Rx';
+import {WebSocketService} from "./web-socket.service"
+import {HttpService} from "./http.service"
+
 export enum KEY_CODE {
   RIGHT_ARROW = 39,
   LEFT_ARROW = 37,
@@ -63,14 +71,80 @@ export class AppComponent {
   happy_emo = [];
   is_shown = false;
   clip = "";
-  constructor(private http: Http,private sanitizer: DomSanitizer){
+  private socket;
+  private server_ulr = "ws://192.168.1.27:8667";
+  is_server_connected = "not conneted";
+  is_con = false;
+  message: any;
+  data:Data;
+  is_discarded = false;
+  keybord = "None"
+  constructor(private httpService:HttpService,private http: Http,private sanitizer: DomSanitizer, private http_client: HttpClient){
     this.date = this.d.toString();
   	this.curent_script = this.scripts[this.current_index];
   	this.current_emotion = this.emotions[this.current_index];
   	this.font = this.scripts_font_size + "rem";
   	this.emoji = "assets/emoji/"+this.emotions[this.current_index] + ".png";
     this.readCsvData();
+
    
+  }
+
+  sendDataToServer(data:any){
+    console.log("data",data);
+    this.httpService.send_data(data).subscribe(
+
+            response => console.log(response), // success
+            error => console.log(error),       // error
+            () => console.log('completed'));     // complete
+
+    
+
+  }
+
+  getMessages() {
+    let observable = new Observable(observer => {
+      this.socket = io(this.server_ulr);
+      console.log(this.server_ulr);
+      this.is_server_connected = "conneted";
+    this.is_con = true;
+      this.socket.on('message', (data) => {
+        console.log("yeahhhhh");
+        console.log(data);
+        observer.next(data);    
+      });
+      return () => {
+        console.log("disconnect");
+        this.socket.disconnect();
+      };  
+    })     
+    return observable;
+  } 
+
+  connect(){
+    this.socket = io(this.server_ulr);
+    this.is_server_connected = "conneted";
+    this.is_con = true;
+    let observable = new Observable(observer => {
+        this.socket.on('message', (data) => {
+          console.log("Received message from Websocket Server")
+          
+        })
+        
+    });
+
+    
+    // we return our Rx.Subject which is a combination
+    // of both an observer and observable.
+  
+  }
+
+ 
+  print_message(){
+    this.getMessages().subscribe(message => {
+      console.log("message", message);
+      // this.messages.push(message);
+    })
   }
 
   format_emotion_labels(emo, trans){
@@ -161,7 +235,6 @@ export class AppComponent {
 
        }
     }
-    console.log("sad", this.sad.length)
     
     this.scripts = [];
     this.emotions = [];
@@ -178,13 +251,13 @@ export class AppComponent {
     this.curent_script = this.scripts[this.current_index];
     this.current_emotion = this.emotions[this.current_index];
     this.emoji = "assets/emoji/"+this.emotions[this.current_index] + ".png";
-    console.log(this.emotions)
-    console.log(this.scripts.length);
-    console.log("Sad", this.sad_c);
-    console.log("Happy", this.happy_c);
-    console.log("Surprise", this.sur_c);
-    console.log("Angry", this.angry_c);
-    console.log(this.current_emotion, this.curent_script)
+    // console.log(this.emotions)
+    // console.log(this.scripts.length);
+    // console.log("Sad", this.sad_c);
+    // console.log("Happy", this.happy_c);
+    // console.log("Surprise", this.sur_c);
+    // console.log("Angry", this.angry_c);
+    // console.log(this.current_emotion, this.curent_script)
   }
   private shuffle(obj1, obj2) {
   var index = obj1.length;
@@ -279,7 +352,7 @@ export class AppComponent {
       // this.log.start_time = this.hr + ":" + this.min + ":" + this.sec;
       this.log.trans = this.curent_script;
       this.log.emotion = this.current_emotion;
-      console.log(this.log)
+      // console.log(this.log)
       this.isReacording_started = true;
   }
   finish(){
@@ -287,7 +360,7 @@ export class AppComponent {
       var today = new Date().toUTCString();
       this.log.end_time = today;
       // this.log.end_time = this.hr + ":" + this.min + ":" + this.sec;
-      console.log(this.log)
+      // console.log(this.log)
       this.isReacording_started = false;
       this.loger.push(this.log);
     }
@@ -305,15 +378,26 @@ export class AppComponent {
   @HostListener('window:keyup', ['$event'])
   keyEvent(event: KeyboardEvent) {
     if (event.keyCode === KEY_CODE.RIGHT_ARROW) {
+       this.keybord = "NEXT";
+      console.log("dis", this.is_discarded);
+      if(!this.is_discarded){
+                this.finish();
+                let d  = new Data();
+                d.case = "ts";
+                d.data = {"emotion": this.current_emotion, "ts": this.curent_script};
+                this.sendDataToServer(d);
+                console.log("ts and emotion has sent to the server");
+           
+      }
     	if(this.scripts.length -1 > this.current_index){
     		 this.current_index +=1;
 		        this.curent_script = this.scripts[this.current_index];
 		        this.current_emotion = this.emotions[this.current_index];
-		        console.log("changing right", this.current_index);
+		        // console.log("changing right", this.current_index);
 		       this.emoji = "assets/emoji/"+this.emotions[this.current_index] + ".png";
-           if(this.isReacording_started){
-             this.finish();
-           }
+           // if(this.isReacording_started){
+           //   this.finish();
+           // }
     	}
        
     }
@@ -323,7 +407,7 @@ export class AppComponent {
         	this.current_index -=1;
         	this.curent_script = this.scripts[this.current_index];
         	this.current_emotion = this.emotions[this.current_index];
-		    console.log("changing left", this.current_index);
+		    // console.log("changing left", this.current_index);
 		   this.emoji = "assets/emoji/"+this.emotions[this.current_index] + ".png";
         }
     }
@@ -342,30 +426,44 @@ export class AppComponent {
      	  this.start_timer();
      }
      if(event.keyCode === KEY_CODE.S){
-     	   this.start();
+      this.start();
+        let d = new Data();
+         // this.print_message();
+     	   // this.start();
+         this.is_discarded = false;
+         
+         d.case = "COMMAND";
+         d.data = "START";
+         this.sendDataToServer(d);
+         console.log("Start command has sent to the server");
+         this.keybord = "START";
      }
      if(event.keyCode === KEY_CODE.Y){
      	this.reset_timer();
-     console.log(JSON.stringify(this.loger));
+     // console.log(JSON.stringify(this.loger));
      }
      if(event.keyCode === KEY_CODE.D){
-        this.finish();
+        // this.finish();
+        this.is_discarded = true;
+        this.keybord = "DISCARD";
      }
-     if(event.keyCode === KEY_CODE.F){
-        this.download();
-     }
+     // if(event.keyCode === KEY_CODE.F){
+     //    this.download();
+     // }
      if(event.keyCode === KEY_CODE.SPACE){
         this.is_shown = true;
      }
      if(event.keyCode === KEY_CODE.ENTER){
        
         if(this.clip){
-          this.log = new Loger();
-          this.log.clip_name = this.clip;
-          this.log.trans = this.curent_script;
-          this.log.emotion = this.current_emotion;
-          this.loger.push(this.log);
-          this.clip = "";
+          // this.log = new Loger();
+          // this.log.clip_name = this.clip;
+          // this.log.trans = this.curent_script;
+          // this.log.emotion = this.current_emotion;
+          // this.loger.push(this.log);
+          // this.clip = "";
+          this.httpService.set_server_url(this.clip);
+          console.log("ths server address is ", this.clip);
           this.is_shown = false;
         }
      }
@@ -393,4 +491,10 @@ export class Loger{
   constructor(){
 
   }
+
+}
+
+export class Data{
+  public case:any;
+  public data:any;
 }
