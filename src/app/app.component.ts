@@ -148,7 +148,9 @@ export class AppComponent {
   }
 
   format_emotion_labels(emo, trans){
+    console.log("trans",trans);
     var trans:any = this.santize_trans(trans);
+    console.log("sanitizer", trans);
     if(trans.startsWith("jsdfshfsdfsdfg37846sdfsd8234jhsdfsdffjsfg783243874jhsgf3782234682734245234324234234234234sdfsf")){
        return null; 
       }
@@ -196,16 +198,84 @@ export class AppComponent {
     );
   }
 
+  replace_char(c){
+    var value = "";
+    if (c == "0"){
+       value = " zero ";
+    }
+    else if(c == "1"){
+      value = " one ";
+    }
+    else if(c == "2"){
+      value = " two ";
+    }
+    else if(c == "3"){
+      value = " three ";
+    }
+    else if(c == "4"){
+      value = " four ";
+    }
+    else if(c == "5"){
+      value = " five ";
+    }
+    else if(c == "6"){
+      value = " six ";
+    }
+    else if(c == "7"){
+      value = " seven ";
+    }
+    else if (c == "8"){
+      value = " eight ";
+    }
+    else if(c == "9"){
+      value = " nine ";
+    }
+
+    else if(c == "@"){
+      value = "at ";
+    }
+    else if(c == "&"){
+      value = " and ";
+    }
+    else if(c == "+"){
+      value = " plus ";
+    }
+    else if(c == "="){
+      value = " equals";
+    }
+    else if (c == "_"){
+      value = " underscore ";
+    }
+    else if(c == "-"){
+      value = " minus ";
+    }
+    else if (c == "*"){
+      value = " star ";
+    }
+    else{
+      value = c;
+    }
+    return value;
+
+  }
+
   santize_trans(value){
     var main = value.split(" ");
     var final = "";
     for(var i =0; i < main.length; i++){
-       if(!main[i].trim().startsWith("@") && !main[i].trim().startsWith("&") && !main[i].trim().startsWith("*") && !main[i].trim().startsWith("http") ){
-          final = final + main[i] + " ";
+      var chars = "";
+       if(!main[i].trim().startsWith("http") ){
+         
+           for (var j = 0; j < main[i].length; j++){
+               chars = chars + (this.replace_char(main[i][j]))
+           }
+          final = final + chars + " ";
        }
     }
     final = final.toLowerCase();
+    final = final.trim().trim().trim();
     final =  final.charAt(0).toUpperCase() + final.slice(1);
+
     return final;
   }
   private extractData(res: Response) {
@@ -232,7 +302,7 @@ export class AppComponent {
     for(var i = 0; i < this.csvData.length; i++){
        if(this.format_emotion_labels(this.csvData[i][1], this.csvData[i][3])){
            
-
+        
        }
     }
     
