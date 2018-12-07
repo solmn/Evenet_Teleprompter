@@ -9,19 +9,23 @@ go to ```app.component.ts``` file
 
 find ```replace_char(char)``` function and add the caracter you want to add 
 
-    ```replace_char(c){
-    var value = "";
-    if (c == "0"){
-       value = " zero ";
-    }
-    else if(c == "1"){
-      value = " one ";
-    }
-    else if(c == "2"){
-      value = " two ";
-    }
+    ```
 
-    return value
+    replace_char(c){
+            var value = "";
+		    if (c == "0"){
+		       value = " zero ";
+		    }
+		    else if(c == "1"){
+		      value = " one ";
+		    }
+		    else if(c == "2"){
+		      value = " two ";
+		    }
+
+         return value
+
+       }
     ```
 - To do your own preprocessing 
 
