@@ -198,6 +198,10 @@ export class AppComponent {
     );
   }
 
+  other_preprocessing(text){
+      return text
+  }
+
   replace_char(c){
     var value = "";
     if (c == "0"){
@@ -252,6 +256,9 @@ export class AppComponent {
     else if (c == "*"){
       value = " star ";
     }
+    else if (c =="#"){
+      value = " hashtag "
+    }
     else{
       value = c;
     }
@@ -275,7 +282,7 @@ export class AppComponent {
     final = final.toLowerCase();
     final = final.trim().trim().trim();
     final =  final.charAt(0).toUpperCase() + final.slice(1);
-
+    final  = this.other_preprocessing(final);
     return final;
   }
   private extractData(res: Response) {
