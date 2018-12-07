@@ -198,7 +198,7 @@ export class AppComponent {
     );
   }
 
-  other_preprocessing(text){
+  do_other_preprocessing(text){
       return text
   }
 
@@ -282,7 +282,7 @@ export class AppComponent {
     final = final.toLowerCase();
     final = final.trim().trim().trim();
     final =  final.charAt(0).toUpperCase() + final.slice(1);
-    final  = this.other_preprocessing(final);
+    final  = this.do_other_preprocessing(final);
     return final;
   }
   private extractData(res: Response) {
