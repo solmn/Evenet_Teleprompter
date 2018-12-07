@@ -28,7 +28,9 @@ find ```replace_char(char)``` function and add the caracter you want to add
 Go to ``` do_other_preprocessing(text)```  function, this function accepts the script text and you can do your own preprocessing inside this function
  
 
- ``` do_other_preprocessing(text){
+ ``` 
+
+ do_other_preprocessing(text){
      
       Do your preprocessing here.
       
